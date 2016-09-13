@@ -4,7 +4,7 @@
 # Features: convert virtualization disk format,support: vmdk->qcow2 qcow2->vmdk qcow2->raw raw->qcow2
 # Version: 0.1
 # Buildtime: 20160913
-# Editor: guile.liao
+# Auteur: guile.liao
 # Email: liaolei@geostar.com.cn
 # Copyleft: Licensed under the GPLv3
 #
