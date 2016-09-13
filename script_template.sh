@@ -80,7 +80,7 @@ function ROLE_FUNCTION_NAME_02()
 #====
 #menu
 #====
-#note
+#call funciton
 function MENU()
 {
     local _INPUT=""
