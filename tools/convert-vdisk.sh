@@ -36,27 +36,27 @@ set -u
 #check system
 function OS_CHECK()
 {
-	local _HNAME=$(uname -n)
-	local _OSVERSION=$(cat /etc/redhat-release)
-	local _USERID=$(id -u)
-	local _SESTATUS=$(sestatus|grep "^Current mode"|awk '{print $3}')
+    local _HNAME=$(uname -n)
+    local _OSVERSION=$(cat /etc/redhat-release)
+    local _USERID=$(id -u)
+    local _SESTATUS=$(sestatus|grep "^Current mode"|awk '{print $3}')
     local _QEMU=$(which qemu-img)
-	if [[ ${_SESTATUS} != "permissive" ]];then
-		sed -i s/SELINUX=.*/SELINUX=permissive/g /etc/selinux/config
-		setenforce 0
-	fi
-	echo -e "\e[32m ${_OSVERSION}\e[0m\e[32m]. \e[0m"
-	if [[ ${_USERID} != "0" ]];then
-		echo -e "\e[31m Please use [\e[31;1mroot\e[0m\e[31m] login.\e[0m" && exit
-	fi
+    if [[ ${_SESTATUS} != "permissive" ]];then
+        sed -i s/SELINUX=.*/SELINUX=permissive/g /etc/selinux/config
+        setenforce 0
+    fi
+    echo -e "\e[32m ${_OSVERSION}\e[0m\e[32m]. \e[0m"
+    if [[ ${_USERID} != "0" ]];then
+        echo -e "\e[31m Please use [\e[31;1mroot\e[0m\e[31m] login.\e[0m" && exit
+    fi
     echo -e "\e[32m My hostname is [\e[0m\e[36;4m${_HNAME}\e[0m\b\e[32m].\e[0m"
     if [[ ${_QEMU} = "" ]];then
         echo -e "\e[31m Please install [\e[31;1mqemu-img\e[0m\e[31m],run me again.\e[0m" && exit
     fi
     unset local _HNAME
-	unset local _OSVERSION
-	unset local _USERID
-	unset local _SESTATUS
+    unset local _OSVERSION
+    unset local _USERID
+    unset local _SESTATUS
     unset local _QEMU
 #function end
 }
