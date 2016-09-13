@@ -90,13 +90,13 @@ function REDEFINE_NIC_HOSTNAME()
         echo "ONBOOT=yes" >> /etc/sysconfig/network-scripts/ifcfg-eth0
         sed -i s/"^HOSTNAME="//g /etc/sysconfig/network
     elif [[ ${_NICNAME} != "eth0" ]];then
-		mv /etc/sysconfig/network-scripts/ifcfg-${_NICNAME} /etc/sysconfig/network-scripts/ifcfg-eth0
+	mv /etc/sysconfig/network-scripts/ifcfg-${_NICNAME} /etc/sysconfig/network-scripts/ifcfg-eth0
         echo "DEVICE=eth0" > /etc/sysconfig/network-scripts/ifcfg-eth0
         echo "TYPE=Ethernet" >> /etc/sysconfig/network-scripts/ifcfg-eth0
         echo "BOOTPROTO=dhcp" >> /etc/sysconfig/network-scripts/ifcfg-eth0
         echo "ONBOOT=yes" >> /etc/sysconfig/network-scripts/ifcfg-eth0
-		sed -i s/'rhgb quiet"$'/'net.ifnames=0 biosdevname=0 rhgb quiet"'/g /etc/default/grub
-		grub2-mkconfig -o /boot/grub2/grub.cfg
+	sed -i s/'rhgb quiet"$'/'net.ifnames=0 biosdevname=0 rhgb quiet"'/g /etc/default/grub
+	grub2-mkconfig -o /boot/grub2/grub.cfg
         sed -i s/"^HOSTNAME="//g /etc/sysconfig/network
 	fi
     unset local _NICNAME
@@ -111,8 +111,8 @@ function DISABLE_SELINUX()
 {
     local _SESTATUS=$(sestatus|grep "^Current mode"|awk '{print $3}')
     if [[ ${_SESTATUS} != "permissive" ]];then
-		sed -i s/SELINUX=.*/SELINUX=permissive/g /etc/selinux/config
-		setenforce 0
+	sed -i s/SELINUX=.*/SELINUX=permissive/g /etc/selinux/config
+	setenforce 0
 	fi
     unset local _SESTATUS
 #funciton end
