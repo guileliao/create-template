@@ -24,7 +24,7 @@
 #==========
 #
 set -u
-set -e
+#set -e
 #
 
 
@@ -136,6 +136,11 @@ function CLEAN_CENTOS6()
     chkconfig --level 2345 ip6tables off
 #redefine nic hostname
     REDEFINE_NIC_HOSTNAME
+#clean repo file
+    if [[ $(ls /etc/yum.repos.d/*.repo) != "" ]];then
+        mkdir -p /etc/yum.repos.d/bak
+        mv /etc/yum.repos.d/*.repo /etc/yum.repos.d/bak/
+    fi
 #remove system software package
     yum remove -y *kernel* selinux* system-config-* *-firmware man*
 #initialize log policy
@@ -186,6 +191,11 @@ function CLEAN_CENTOS7()
     systemctl disable firewalld
 #redefine nic hostname
     REDEFINE_NIC_HOSTNAME
+#clean repo file
+    if [[ $(ls /etc/yum.repos.d/*.repo) != "" ]];then
+        mkdir -p /etc/yum.repos.d/bak
+        mv /etc/yum.repos.d/*.repo /etc/yum.repos.d/bak/
+    fi
 #remove system software package
     yum remove -y *kernel* selinux* system-config-* *-firmware man*
 #initialize log policy
