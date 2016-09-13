@@ -14,9 +14,10 @@
 # The information: color=yellow
 # The menu: color=blue
 # The keyword: color&highlighted 
-# The global variable: _VARIABLE_NAME_
-# The local variable: _VARIABLE_NAME
-# The function: FUNCITON_NAME()
+# The global variable name: _VARIABLE_NAME_
+# The local variable name: _VARIABLE_NAME
+# Usage variable: ${VARIABLE_NAME}
+# The function name: FUNCITON_NAME()
 #
 #==========
 #set myself
