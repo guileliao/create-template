@@ -38,11 +38,11 @@ set -u
 #judge system version
 function JUDGE_OS_VER()
 {
-    if [[ $(rpm -qa|grep "el6") != "" ]];then
+    if [[ $(rpm -qa|grep ".el6") != "" ]];then
         echo "centos6"
-    elif [[ $(rpm -qa|grep "el7") != "" ]];then
+    elif [[ $(rpm -qa|grep ".el7") != "" ]];then
         echo "centos7"
-    elif [[ $(rpm -qa|grep "fc[1-9][0-9]") != "" ]];then
+    elif [[ $(rpm -qa|grep ".fc[1-9][0-9]") != "" ]];then
         echo "fedora"
     else
         echo "error"
