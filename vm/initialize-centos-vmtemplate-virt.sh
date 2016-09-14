@@ -120,17 +120,15 @@ function DISABLE_SELINUX()
 #redefine nic name,hostname
 function REDEFINE_NIC_HOSTNAME()
 {
-    JUDGE_OS_VER
-    local _RETCODE=$(echo $?)
     local _NICNAME=$(ip addr|grep "^2"|awk -F ": " '{print $2}')
-    if [[ ${_RETCODE} = "6" ]];then
+    if [[ $(JUDGE_OS_VER) = "centos6" ]];then
         echo "DEVICE=eth0" > /etc/sysconfig/network-scripts/ifcfg-eth0
         echo "TYPE=Ethernet" >> /etc/sysconfig/network-scripts/ifcfg-eth0
         echo "BOOTPROTO=dhcp" >> /etc/sysconfig/network-scripts/ifcfg-eth0
         echo "ONBOOT=yes" >> /etc/sysconfig/network-scripts/ifcfg-eth0
         sed -i s/"^HOSTNAME="//g /etc/sysconfig/network
     fi
-    if [ ${_RETCODE} = "7" -a ${_NICNAME} != "eth0" ];then
+    if [ $(JUDGE_OS_VER) = "centos7" -a ${_NICNAME} != "eth0" ];then
         mv /etc/sysconfig/network-scripts/ifcfg-${_NICNAME} /etc/sysconfig/network-scripts/ifcfg-eth0
         echo "DEVICE=eth0" > /etc/sysconfig/network-scripts/ifcfg-eth0
         echo "TYPE=Ethernet" >> /etc/sysconfig/network-scripts/ifcfg-eth0
@@ -139,7 +137,7 @@ function REDEFINE_NIC_HOSTNAME()
         sed -i s/'rhgb quiet"$'/'net.ifnames=0 biosdevname=0 rhgb quiet"'/g /etc/default/grub
         grub2-mkconfig -o /boot/grub2/grub.cfg
         sed -i s/"^HOSTNAME="//g /etc/sysconfig/network
-    elif [ ${_RETCODE} = "7" -a ${_NICNAME} = "eth0" ];then
+    elif [ $(JUDGE_OS_VER) = "centos7" -a ${_NICNAME} = "eth0" ];then
         echo "DEVICE=eth0" > /etc/sysconfig/network-scripts/ifcfg-eth0
         echo "TYPE=Ethernet" >> /etc/sysconfig/network-scripts/ifcfg-eth0
         echo "BOOTPROTO=dhcp" >> /etc/sysconfig/network-scripts/ifcfg-eth0
@@ -147,7 +145,6 @@ function REDEFINE_NIC_HOSTNAME()
         sed -i s/"^HOSTNAME="//g /etc/sysconfig/network
 	fi
     unset local _NICNAME
-    unset local _RETCODE
 #funciton end
 }
 
@@ -263,11 +260,11 @@ function CLEAN_CENTOS7()
 #call_function
 #=============
 #call function
-echo -e "\e[33m The operating system initialization is about to begin.\n Press 'Enter' key begin.\e[0m"
+echo -e "\e[33m The operating system initialization is about to begin.\n Press 'Enter' key start.\e[0m"
 read
-if [[ $(rpm -qa|grep "el6") != "" ]];then
+if [[ $(JUDGE_OS_VER) = "centos6" ]];then
     CLEAN_CENTOS6
-elif [[ $(rpm -qa|grep "el7") != "" ]];then
+elif [[ $(JUDGE_OS_VER) = "centos7" ]];then
     CLEAN_CENTOS7
 else
     echo -e "\e[31m What operating system you are using?\e[0m" && exit
