@@ -50,6 +50,22 @@ function JUDGE_OS_VER()
 #function end
 }
 
+#------------
+#get_nic_name
+#------------
+#get nic name
+function GET_NIC_NAME()
+{
+    if [[ $(JUDGE_OS_VER) = "error" ]];then
+        echo "error"
+    elif [[ $(JUDGE_OS_VER) = "centos6" ]];then
+        echo "eth0"
+    elif [[ $(JUDGE_OS_VER) = "centos7" ]];then
+        echo "$(ip addr|grep "^2"|awk -F ": " '{print $2}')"
+    fi
+#funciton end
+}
+
 #-------------
 #clean_tomcat6
 #-------------
@@ -120,16 +136,16 @@ function DISABLE_SELINUX()
 #redefine nic name,hostname
 function REDEFINE_NIC_HOSTNAME()
 {
-    local _NICNAME=$(ip addr|grep "^2"|awk -F ": " '{print $2}')
-    if [[ $(JUDGE_OS_VER) = "centos6" ]];then
+    if [[ $(GET_NIC_NAME) = "error" ]];then
+        echo -e "\e[31m Please check network card and OS.\e[0m" && exit
+    elif [[ $(GET_NIC_NAME) = "eth0" ]];then
         echo "DEVICE=eth0" > /etc/sysconfig/network-scripts/ifcfg-eth0
         echo "TYPE=Ethernet" >> /etc/sysconfig/network-scripts/ifcfg-eth0
         echo "BOOTPROTO=dhcp" >> /etc/sysconfig/network-scripts/ifcfg-eth0
         echo "ONBOOT=yes" >> /etc/sysconfig/network-scripts/ifcfg-eth0
         sed -i s/"^HOSTNAME="//g /etc/sysconfig/network
-    fi
-    if [ $(JUDGE_OS_VER) = "centos7" -a ${_NICNAME} != "eth0" ];then
-        mv /etc/sysconfig/network-scripts/ifcfg-${_NICNAME} /etc/sysconfig/network-scripts/ifcfg-eth0
+    else
+        mv /etc/sysconfig/network-scripts/ifcfg-$(GET_NIC_NAME) /etc/sysconfig/network-scripts/ifcfg-eth0
         echo "DEVICE=eth0" > /etc/sysconfig/network-scripts/ifcfg-eth0
         echo "TYPE=Ethernet" >> /etc/sysconfig/network-scripts/ifcfg-eth0
         echo "BOOTPROTO=dhcp" >> /etc/sysconfig/network-scripts/ifcfg-eth0
@@ -137,14 +153,7 @@ function REDEFINE_NIC_HOSTNAME()
         sed -i s/'rhgb quiet"$'/'net.ifnames=0 biosdevname=0 rhgb quiet"'/g /etc/default/grub
         grub2-mkconfig -o /boot/grub2/grub.cfg
         sed -i s/"^HOSTNAME="//g /etc/sysconfig/network
-    elif [ $(JUDGE_OS_VER) = "centos7" -a ${_NICNAME} = "eth0" ];then
-        echo "DEVICE=eth0" > /etc/sysconfig/network-scripts/ifcfg-eth0
-        echo "TYPE=Ethernet" >> /etc/sysconfig/network-scripts/ifcfg-eth0
-        echo "BOOTPROTO=dhcp" >> /etc/sysconfig/network-scripts/ifcfg-eth0
-        echo "ONBOOT=yes" >> /etc/sysconfig/network-scripts/ifcfg-eth0
-        sed -i s/"^HOSTNAME="//g /etc/sysconfig/network
 	fi
-    unset local _NICNAME
 #funciton end
 }
 
