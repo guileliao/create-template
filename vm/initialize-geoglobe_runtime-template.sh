@@ -31,26 +31,106 @@ set -u
 #public_function
 #===============
 #
-#-----------------------
-#public_function_name_01
-#-----------------------
-#note
-function FUNCTION_NAME_01()
+#------------
+#check_os_ver
+#------------
+#judge system version
+function CHECK_OS_VER()
 {
-
+    if [[ $(cat /etc/system-release-cpe |awk -F ':' '{print $4$5}') = "linux6" ]];then
+        echo "centos6"
+    elif [[ $(cat /etc/system-release-cpe |awk -F ':' '{print $4$5}') = "centos7" ]];then
+        echo "centos7"
+    elif [[ $(cat /etc/system-release-cpe |awk -F ':' '{print $4}') = "fedora" ]];then
+        echo "$(cat /etc/system-release-cpe |awk -F ':' '{print $4$5}')"	
+    else
+        echo "error"
+    fi
 #function end
 }
 
-#-----------------------
-#public_function_name_02
-#-----------------------
-#note
-function FUNCTION_NAME_02()
+#---------------
+#disable_selinux
+#---------------
+#fix selinux status to "permissive"
+function DISABLE_SELINUX()
 {
+    local _SESTATUS=$(sestatus|grep "^Current mode"|awk '{print $3}')
+    if [[ ${_SESTATUS} != "permissive" ]];then
+	    sed -i s/SELINUX=.*/SELINUX=permissive/g /etc/selinux/config
+	    setenforce 0 &>/dev/null
+	fi
+    unset local _SESTATUS
+#funciton end
+}
 
+#--------------
+#check_nic_name
+#--------------
+#get nic name
+function CHECK_NIC_NAME()
+{
+    if [[ $(CHECK_OS_VER) = "centos6" ]];then
+        echo "eth0"
+    elif [[ $(CHECK_OS_VER) = "centos7" ]];then
+        echo "$(ip addr|grep "^2"|awk -F ": " '{print $2}')"
+    else
+        echo "error" 
+    fi
+#funciton end
+}
+
+#----------------
+#check_oracle_jdk
+#----------------
+#check oracle jdk packages,$JAVA_HOME
+#code "0"=Oracle JDK is OK.
+#code "1"=Oracle JDK has been not installed.
+#code "2"=Oracle JDK version error.
+#code "3"='$JAVA_HOME' has not set.
+function CHECK_ORACLE_JDK()
+{
+    if [[ $(rpm -qa|grep "jdk") = "" ]];then
+        echo "1"
+    elif [[ $(rpm -qa|grep "jdk"|grep "1.6.0_45") = "" ]];then
+        echo "2"
+    elif [ ! -z "$JAVA_HOME" ];then
+        echo "3"
+    else
+        echo "0"
+    fi
 #function end
 }
 
+#-------------
+#check_tomcat6
+#-------------
+#clean tomcat6 cache,log file
+function CHECK_TOMCAT6()
+{
+    if [[ $(rpm -qa|grep "tomcat6") != "" ]];then
+        rm -rf /var/log/tomcat6/*
+        rm -rf /usr/share/tomcat6/temp/*
+        rm -rf /usr/share/tomcat6/work/*
+        chkconfig --level 345 tomcat6 on
+    fi
+#function end
+}
+
+#--------------
+#check_geoagent
+#--------------
+#clean geoagent log file,add startup
+function CHECK_GEOAGENT()
+{
+    if [ -d /opt/geoagent ];then
+        rm -rf /opt/geoagent/log
+    fi
+    if [[ $(grep "geoagent" /etc/rc.local) = "" ]];then
+        echo '/opt/geoagent/bin/geoagent' >> /etc/rc.local
+    fi
+#function end
+}
 
 #=============
 #role_function

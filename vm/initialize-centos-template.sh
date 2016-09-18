@@ -50,11 +50,11 @@ function CHECK_OS_VER()
 #function end
 }
 
-#------------
-#get_nic_name
-#------------
+#--------------
+#check_nic_name
+#--------------
 #get nic name
-function GET_NIC_NAME()
+function CHECK_NIC_NAME()
 {
     if [[ $(CHECK_OS_VER) = "centos6" ]];then
         echo "eth0"
@@ -67,10 +67,10 @@ function GET_NIC_NAME()
 }
 
 #-------------
-#clean_tomcat6
+#check_tomcat6
 #-------------
 #clean tomcat6 cache,log file
-function CLEAN_TOMCAT6()
+function CHECK_TOMCAT6()
 {
     if [[ $(rpm -qa|grep "tomcat6") != "" ]];then
         rm -rf /var/log/tomcat6/*
@@ -82,10 +82,10 @@ function CLEAN_TOMCAT6()
 }
 
 #-----------
-#clean_mysql
+#check_mysql
 #-----------
 #clean mysql log file
-function CLEAN_MYSQL()
+function CHECK_MYSQL()
 {
     if [[ $(rpm -qa|grep "mysql-server") != "" ]];then
         :>/var/log/mysqld.log
@@ -96,10 +96,10 @@ function CLEAN_MYSQL()
 }
 
 #--------------
-#clean_geoagent
+#check_geoagent
 #--------------
 #clean geoagent log file,add startup
-function CLEAN_GEOAGENT()
+function CHECK_GEOAGENT()
 {
     if [ -d /opt/geoagent ];then
         rm -rf /opt/geoagent/log
@@ -136,16 +136,16 @@ function DISABLE_SELINUX()
 #redefine nic name,hostname
 function REDEFINE_NIC_HOSTNAME()
 {
-    if [[ $(GET_NIC_NAME) = "error" ]];then
+    if [[ $(CHECK_NIC_NAME) = "error" ]];then
         echo -e "\e[31m Please check network card and OS.\e[0m" && exit
-    elif [[ $(GET_NIC_NAME) = "eth0" ]];then
+    elif [[ $(CHECK_NIC_NAME) = "eth0" ]];then
         echo "DEVICE=eth0" > /etc/sysconfig/network-scripts/ifcfg-eth0
         echo "TYPE=Ethernet" >> /etc/sysconfig/network-scripts/ifcfg-eth0
         echo "BOOTPROTO=dhcp" >> /etc/sysconfig/network-scripts/ifcfg-eth0
         echo "ONBOOT=yes" >> /etc/sysconfig/network-scripts/ifcfg-eth0
         sed -i s/"^HOSTNAME="//g /etc/sysconfig/network
     else
-        mv /etc/sysconfig/network-scripts/ifcfg-$(GET_NIC_NAME) /etc/sysconfig/network-scripts/ifcfg-eth0
+        mv /etc/sysconfig/network-scripts/ifcfg-$(CHECK_NIC_NAME) /etc/sysconfig/network-scripts/ifcfg-eth0
         echo "DEVICE=eth0" > /etc/sysconfig/network-scripts/ifcfg-eth0
         echo "TYPE=Ethernet" >> /etc/sysconfig/network-scripts/ifcfg-eth0
         echo "BOOTPROTO=dhcp" >> /etc/sysconfig/network-scripts/ifcfg-eth0
@@ -157,11 +157,11 @@ function REDEFINE_NIC_HOSTNAME()
 #funciton end
 }
 
-#-------------
-#clean_centos6
-#-------------
+#------------
+#init_centos6
+#------------
 #clean system
-function CLEAN_CENTOS6()
+function INIT_CENTOS6()
 {
 #disable selinux
     DISABLE_SELINUX
@@ -196,11 +196,11 @@ function CLEAN_CENTOS6()
     rm -f /etc/ssh/*key*
     rm -f /var/log/*-* /var/log/*.gz 2>/dev/null
 #clean tomcat6
-    CLEAN_TOMCAT6
+    CHECK_TOMCAT6
 #clean mysql
-    CLEAN_MYSQL
+    CHECK_MYSQL
 #clean geoagent
-    CLEAN_GEOAGENT
+    CHECK_GEOAGENT
 #clean yum cache
     yum clean all
 #create Buildtime
@@ -213,11 +213,11 @@ function CLEAN_CENTOS6()
 #funciton end
 }
 
-#-------------
-#clean_centos7
-#-------------
+#------------
+#init_centos7
+#------------
 #clean system
-function CLEAN_CENTOS7()
+function INIT_CENTOS7()
 {
 #disable selinux
     DISABLE_SELINUX
@@ -249,9 +249,9 @@ function CLEAN_CENTOS7()
     rm -f /etc/ssh/*key*
     rm -f /var/log/*-* /var/log/*.gz 2>/dev/null
 #clean mysql
-    CLEAN_MYSQL
+    CHECK_MYSQL
 #clean geoagent
-    CLEAN_GEOAGENT
+    CHECK_GEOAGENT
 #clean yum cache
     yum clean all
 #create Buildtime
@@ -272,9 +272,9 @@ function CLEAN_CENTOS7()
 echo -e "\e[33m The operating system initialization is about to begin.\n Press 'Enter' key start.\e[0m"
 read
 if [[ $(CHECK_OS_VER) = "centos6" ]];then
-    CLEAN_CENTOS6
+    INIT_CENTOS6
 elif [[ $(CHECK_OS_VER) = "centos7" ]];then
-    CLEAN_CENTOS7
+    INIT_CENTOS7
 else
     echo -e "\e[31m What operating system you are using?\e[0m" && exit
 fi
