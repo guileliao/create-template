@@ -33,17 +33,17 @@ set -u
 #===============
 #
 #------------
-#judge_os_ver
+#check_os_ver
 #------------
 #judge system version
-function JUDGE_OS_VER()
+function CHECK_OS_VER()
 {
-    if [[ $(rpm -qa|grep ".el6") != "" ]];then
+    if [[ $(cat /etc/system-release-cpe |awk -F ':' '{print $4$5}') = "linux6" ]];then
         echo "centos6"
-    elif [[ $(rpm -qa|grep ".el7") != "" ]];then
+    elif [[ $(cat /etc/system-release-cpe |awk -F ':' '{print $4$5}') = "centos7" ]];then
         echo "centos7"
-    elif [[ $(rpm -qa|grep ".fc[1-9][0-9]") != "" ]];then
-        echo "fedora"
+    elif [[ $(cat /etc/system-release-cpe |awk -F ':' '{print $4}') = "fedora" ]];then
+        echo "$(cat /etc/system-release-cpe |awk -F ':' '{print $4$5}')"	
     else
         echo "error"
     fi
@@ -56,12 +56,12 @@ function JUDGE_OS_VER()
 #get nic name
 function GET_NIC_NAME()
 {
-    if [[ $(JUDGE_OS_VER) = "error" ]];then
-        echo "error"
-    elif [[ $(JUDGE_OS_VER) = "centos6" ]];then
+    if [[ $(CHECK_OS_VER) = "centos6" ]];then
         echo "eth0"
-    elif [[ $(JUDGE_OS_VER) = "centos7" ]];then
+    elif [[ $(CHECK_OS_VER) = "centos7" ]];then
         echo "$(ip addr|grep "^2"|awk -F ": " '{print $2}')"
+    else
+        echo "error" 
     fi
 #funciton end
 }
@@ -118,8 +118,8 @@ function DISABLE_SELINUX()
 {
     local _SESTATUS=$(sestatus|grep "^Current mode"|awk '{print $3}')
     if [[ ${_SESTATUS} != "permissive" ]];then
-	sed -i s/SELINUX=.*/SELINUX=permissive/g /etc/selinux/config
-	setenforce 0
+	    sed -i s/SELINUX=.*/SELINUX=permissive/g /etc/selinux/config
+	    setenforce 0
 	fi
     unset local _SESTATUS
 #funciton end
@@ -271,9 +271,9 @@ function CLEAN_CENTOS7()
 #call function
 echo -e "\e[33m The operating system initialization is about to begin.\n Press 'Enter' key start.\e[0m"
 read
-if [[ $(JUDGE_OS_VER) = "centos6" ]];then
+if [[ $(CHECK_OS_VER) = "centos6" ]];then
     CLEAN_CENTOS6
-elif [[ $(JUDGE_OS_VER) = "centos7" ]];then
+elif [[ $(CHECK_OS_VER) = "centos7" ]];then
     CLEAN_CENTOS7
 else
     echo -e "\e[31m What operating system you are using?\e[0m" && exit
