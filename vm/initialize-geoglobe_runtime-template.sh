@@ -81,6 +81,30 @@ function CHECK_NIC_NAME()
 }
 
 #----------------
+#check_ntp_client
+#----------------
+#check ntpd service status
+#code "0"=Oracle JDK is OK.
+#code "1"=Package 'ntp' has been not installed.
+#code "2"=Oracle JDK version error.
+#code "3"='$JAVA_HOME' has not set.
+function CHECK_NTP_CLIENT()
+{
+    if [[ $(which ntpq) = "" ]];then
+        echo "1"
+    fi
+    local _NUM=0
+    for ((i=3;i<=5;i++));
+        do
+            if [ -f /etc/rc.d/rc${i}.d/S*ntpd ];then
+                _NUM=$((${_NUM}+1))
+            fi
+        done
+    if [[ ${_NUM} < "3" ]]; 
+#funciton end
+}
+
+#----------------
 #check_oracle_jdk
 #----------------
 #check oracle jdk packages,$JAVA_HOME
@@ -131,6 +155,7 @@ function CHECK_GEOAGENT()
     fi
 #function end
 }
+
 
 #=============
 #role_function
