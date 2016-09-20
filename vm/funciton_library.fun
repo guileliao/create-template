@@ -48,8 +48,8 @@ function DISABLE_SELINUX()
 {
     local _SESTATUS=$(sestatus|grep "^Current mode"|awk '{print $3}')
     if [[ ${_SESTATUS} != "permissive" ]];then
-	    sed -i s/SELINUX=.*/SELINUX=permissive/g /etc/selinux/config
-	    setenforce 0
+	    sed -i s/"SELINUX=.*"/"SELINUX=permissive"/g /etc/selinux/config
+	    setenforce 0 &>/dev/null
 	fi
     unset local _SESTATUS
 #funciton end
@@ -103,7 +103,7 @@ function CHECK_NTP_CLIENT()
 {
     if [ -z "$(which ntpq)" ];then
         echo "1"
-    elif [ -z "$(grep "ntp.gfstack.geo" /etc/ntp.conf)" ];then
+    elif [ -z "$(grep '^server ntp.gfstack.geo iburst' /etc/ntp.conf)" ];then
         echo "2"
     else
         echo "0" && chkconfig --level 345 ntpd on &>/dev/null
@@ -285,14 +285,42 @@ function CHECK_GEOAGENT()
 #check_zabbix_agent
 #------------------
 #check zabbix-agent
+#code "0"=zabbix_agent is OK.
+#code "1"=Option [Server] error on '/etc/zabbix/zabbix_agentd.conf'.
+#code "2"=Option [ListenPort] error on '/etc/zabbix/zabbix_agentd.conf'.
+#code "3"=Option [ListenIP] error on '/etc/zabbix/zabbix_agentd.conf'.
+#code "4"=Option [ServerActive] error on '/etc/zabbix/zabbix_agentd.conf'.
+#code "5"=Option [Hostname] error on '/etc/zabbix/zabbix_agentd.conf'.
+#code "100"=zabbix_agent has been not installed.
 function CHECK_ZABBIX_AGENT()
 {
-    if [ -d /opt/geoagent ];then
-        rm /opt/geoagent/log -rf
+    local _ARRAY=(
+    'Server=monsrv.gfstack.geo'
+    'ListenPort=10050'
+    'ListenIP=0.0.0.0'
+    'ServerActive=monsrv.gfstack.geo'
+    'Hostname=Zabbix server'
+    )
+    local _NUM=0
+    for ((i=0;i<${#_ARRAY[@]};i++));
+        do
+            if [ -n "$(grep "${_ARRAY[i]}" /etc/zabbix/zabbix_agentd.conf)" ];then
+                local _NUM=$((${_NUM}+1))
+#                echo "option [$(echo "${_ARRAY[$((${_NUM}-1))]}"|awk -F '=' '{print $1}')] set the correct"
+            else
+#                echo "option [$(echo "${_ARRAY[${_NUM}]}"|awk -F '=' '{print $1}')] set the error"
+                break
+            fi
+        done
+    if [ -z "$(which zabbix_agent)" ];then
+        echo "100"
+    elif [ ${_NUM} != "5" ];then
+        echo "$((${_NUM}+1))"
+    else
+        echo "0"
     fi
-    if [ -z "$(grep "geoagent" /etc/rc.local)" ];then
-        echo '/opt/geoagent/bin/geoagent' >> /etc/rc.local
-    fi
+    unset local _ARRAY
+    unset local _NUM
 #function end
 }
 
