@@ -28,11 +28,11 @@
 #judge system version
 function CHECK_OS_VER()
 {
-    if [[ $(cat /etc/system-release-cpe |awk -F ':' '{print $4$5}') = "linux6" ]];then
+    if [[ "$(cat /etc/system-release-cpe |awk -F ':' '{print $4$5}')" = "linux6" ]];then
         echo "centos6"
-    elif [[ $(cat /etc/system-release-cpe |awk -F ':' '{print $4$5}') = "centos7" ]];then
+    elif [[ "$(cat /etc/system-release-cpe |awk -F ':' '{print $4$5}')" = "centos7" ]];then
         echo "centos7"
-    elif [[ $(cat /etc/system-release-cpe |awk -F ':' '{print $4}') = "fedora" ]];then
+    elif [[ "$(cat /etc/system-release-cpe |awk -F ':' '{print $4}')" = "fedora" ]];then
         echo "$(cat /etc/system-release-cpe |awk -F ':' '{print $4$5}')"	
     else
         echo "error"
@@ -61,7 +61,13 @@ function DISABLE_SELINUX()
 #check firewall status
 function CHECK_IPTABLES()
 {
-    
+    if [[ "$(CHECK_OS_VER)" = "centos6" ]];then
+        service iptables stop &>/dev/null && chkconfig --level 2345 iptables off &>/dev/null
+        service ip6tables stop &>/dev/null && chkconfig --level 2345 ip6tables off &>/dev/null
+    elif [[ "$(CHECK_OS_VER)" = "centos7" ]];then
+        systemctl stop firewalld &>/dev/null && systemctl disable firewalld &>/dev/null 
+    fi
+    echo -e "\e[32m Firewall has been stopped.\e[0m"
 #funciton end
 }
 
@@ -71,9 +77,9 @@ function CHECK_IPTABLES()
 #get nic name
 function CHECK_NIC_NAME()
 {
-    if [[ $(CHECK_OS_VER) = "centos6" ]];then
+    if [[ "$(CHECK_OS_VER)" = "centos6" ]];then
         echo "eth0"
-    elif [[ $(CHECK_OS_VER) = "centos7" ]];then
+    elif [[ "$(CHECK_OS_VER)" = "centos7" ]];then
         echo "$(ip addr|grep "^2"|awk -F ": " '{print $2}')"
     else
         echo "error" 
@@ -95,9 +101,9 @@ function CHECK_NIC_NAME()
 #code "2"=ntp server address has not set.
 function CHECK_NTP_CLIENT()
 {
-    if [ -z $(which ntpq) ];then
+    if [ -z "$(which ntpq)" ];then
         echo "1"
-    elif [ -z $(grep "ntp.gfstack.geo" /etc/ntp.conf) ];then
+    elif [ -z "$(grep "ntp.gfstack.geo" /etc/ntp.conf)" ];then
         echo "2"
     else
         echo "0" && chkconfig --level 345 ntpd on &>/dev/null
@@ -113,11 +119,10 @@ function CHECK_NTP_CLIENT()
 #code "1"=Package 'ntp' has been not installed.
 function CHECK_NTP_SERVER()
 {
-    if [ -z $(which ntpq) ];then
+    if [ -z "$(which ntpq)" ];then
         echo "1"
     else
-        echo "0"
-        chkconfig --level 345 ntpd on &>/dev/null
+        echo "0" && chkconfig --level 345 ntpd on &>/dev/null
     fi
 #funciton end
 }
@@ -131,12 +136,10 @@ function CHECK_NTP_SERVER()
 #code "2"=ntp server address has not set.
 function CHECK_DNS_SERVICE()
 {
-    if [ -z $(which ntpq) ];then
+    if [ -z "$(which dnsmasq)" ];then
         echo "1"
-    elif [ -z $(grep "ntp.gfstack.geo" /etc/ntp.conf) ];then
-        echo "2"
     else
-        echo "0" && chkconfig --level 345 ntpd on &>/dev/null
+        echo "0" && chkconfig --level 345 dnsmasq on &>/dev/null
     fi
 #funciton end
 }
@@ -149,11 +152,10 @@ function CHECK_DNS_SERVICE()
 #code "1"=Package 'httpd' has been not installed.
 function CHECK_HTTPD()
 {
-    if [ -z $(which httpd) ];then
+    if [ -z "$(which httpd)" ];then
         echo "1"
     else
-        echo "0"
-        chkconfig --level 345 httpd on &>/dev/null
+        echo "0" && chkconfig --level 345 httpd on &>/dev/null
         mv /etc/httpd/conf.d/welcome.conf /etc/httpd/conf.d/welcome.conf.old &>/dev/null
         service httpd restart &>/dev/null
     fi
@@ -168,13 +170,12 @@ function CHECK_HTTPD()
 #code "1"=Package 'vsftpd' has been not installed.
 function CHECK_VSFTPD()
 {
-    if [ -z $(which vsftpd) ];then
+    if [ -z "$(which vsftpd)" ];then
         echo "1"
     else
-        echo "0"
+        echo "0" && chkconfig --level 345 vsftpd on &>/dev/null
         sed -i s/"^root"/"#root"/g /etc/vsftpd/user_list
         sed -i s/"^root"/"#root"/g /etc/vsftpd/ftpusers
-        chkconfig --level 345 vsftpd on &>/dev/null
         service vsftpd restart &>/dev/null
     fi
 #funciton end
@@ -195,11 +196,11 @@ function CHECK_VSFTPD()
 #code "3"='$JAVA_HOME' has not set.
 function CHECK_ORACLE_JDK()
 {
-    if [ -z $(rpm -qa|grep "jdk") ];then
+    if [ -z "$(rpm -qa|grep "jdk")" ];then
         echo "1"
-    elif [ -z $(rpm -qa|grep "jdk"|grep "1.6.0_45") ];then
+    elif [ -z "$(rpm -qa|grep "jdk"|grep "1.6.0_45")" ];then
         echo "2"
-    elif [ -z "$JAVA_HOME" ];then
+    elif [ -z "$(echo ${JAVA_HOME})" ];then
         echo "3"
     else
         echo "0"
@@ -218,11 +219,11 @@ function CHECK_ORACLE_JDK()
 #code "3"='$JAVA_HOME' has not set.
 function CHECK_TOMCAT6()
 {
-    if [ -z $(rpm -qa|grep "tomcat6-admin-webapps") ];then
+    if [ -z "$(rpm -qa|grep "tomcat6-admin-webapps")" ];then
         echo "1"
-        rm -rf /var/log/tomcat6/*
-        rm -rf /usr/share/tomcat6/temp/*
-        rm -rf /usr/share/tomcat6/work/*
+        rm /var/log/tomcat6/* -rf
+        rm /usr/share/tomcat6/temp/* -rf
+        rm /usr/share/tomcat6/work/* -rf
         chkconfig --level 345 tomcat6 on
     fi
 #function end
@@ -241,11 +242,10 @@ function CHECK_TOMCAT6()
 #code "1"=MySQL-Server has been not installed.
 function CHECK_MYSQL()
 {
-    if [ -n $(which mysql) ];then
-        echo "0"
+    if [ -n "$(which mysql)" ];then
+        echo "0" && chkconfig --level 345 mysqld on
         :>/var/log/mysqld.log
         :>/var/lib/mysql/auto.cnf
-        chkconfig --level 345 mysqld on
     else
         echo "1"
     fi
@@ -266,14 +266,14 @@ function CHECK_MYSQL()
 #code "2"=Geoagent has been not installed.
 function CHECK_GEOAGENT()
 {
-    if [ -z $(rpm -qa|grep "activemq-cpp") ];then
+    if [ -z "$(rpm -qa|grep "activemq-cpp")" ];then
         echo "1"
     elif [ -d /opt/geoagent ];then
         echo "0"
-        rm -rf /opt/geoagent/log
-    elif [ -z $(grep "geoagent" /etc/rc.local) ];then
+        rm /opt/geoagent/log -rf
+    elif [ -z "$(grep "geoagent" /etc/rc.local)" ];then
         echo '/opt/geoagent/bin/geoagent' >> /etc/rc.local
-    elif [ -z $(grep "/opt/geoagent/bin" /etc/ld.so.conf) ];then
+    elif [ -z "$(grep "/opt/geoagent/bin" /etc/ld.so.conf)" ];then
         echo "/opt/geoagent/bin" >> /etc/ld.so.conf && lddconfig
     else
         echo "2"
@@ -288,9 +288,9 @@ function CHECK_GEOAGENT()
 function CHECK_ZABBIX_AGENT()
 {
     if [ -d /opt/geoagent ];then
-        rm -rf /opt/geoagent/log
+        rm /opt/geoagent/log -rf
     fi
-    if [ -z $(grep "geoagent" /etc/rc.local) ];then
+    if [ -z "$(grep "geoagent" /etc/rc.local)" ];then
         echo '/opt/geoagent/bin/geoagent' >> /etc/rc.local
     fi
 #function end
