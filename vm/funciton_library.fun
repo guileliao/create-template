@@ -95,9 +95,9 @@ function CHECK_NIC_NAME()
 #code "2"=ntp server address has not set.
 function CHECK_NTP_CLIENT()
 {
-    if [[ $(which ntpq) = "" ]];then
+    if [ -z $(which ntpq) ];then
         echo "1"
-    elif [[ $(grep "ntp.gfstack.geo" /etc/ntp.conf) = "" ]];then
+    elif [ -z $(grep "ntp.gfstack.geo" /etc/ntp.conf) ];then
         echo "2"
     else
         echo "0" && chkconfig --level 345 ntpd on &>/dev/null
@@ -113,7 +113,7 @@ function CHECK_NTP_CLIENT()
 #code "1"=Package 'ntp' has been not installed.
 function CHECK_NTP_SERVER()
 {
-    if [[ $(which ntpq) = "" ]];then
+    if [ -z $(which ntpq) ];then
         echo "1"
     else
         echo "0"
@@ -131,9 +131,9 @@ function CHECK_NTP_SERVER()
 #code "2"=ntp server address has not set.
 function CHECK_DNS_SERVICE()
 {
-    if [[ $(which ntpq) = "" ]];then
+    if [ -z $(which ntpq) ];then
         echo "1"
-    elif [[ $(grep "ntp.gfstack.geo" /etc/ntp.conf) = "" ]];then
+    elif [ -z $(grep "ntp.gfstack.geo" /etc/ntp.conf) ];then
         echo "2"
     else
         echo "0" && chkconfig --level 345 ntpd on &>/dev/null
@@ -149,7 +149,7 @@ function CHECK_DNS_SERVICE()
 #code "1"=Package 'httpd' has been not installed.
 function CHECK_HTTPD()
 {
-    if [[ $(which httpd) = "" ]];then
+    if [ -z $(which httpd) ];then
         echo "1"
     else
         echo "0"
@@ -168,7 +168,7 @@ function CHECK_HTTPD()
 #code "1"=Package 'vsftpd' has been not installed.
 function CHECK_VSFTPD()
 {
-    if [[ $(which vsftpd) = "" ]];then
+    if [ -z $(which vsftpd) ];then
         echo "1"
     else
         echo "0"
@@ -195,11 +195,11 @@ function CHECK_VSFTPD()
 #code "3"='$JAVA_HOME' has not set.
 function CHECK_ORACLE_JDK()
 {
-    if [[ $(rpm -qa|grep "jdk") = "" ]];then
+    if [ -z $(rpm -qa|grep "jdk") ];then
         echo "1"
-    elif [[ $(rpm -qa|grep "jdk"|grep "1.6.0_45") = "" ]];then
+    elif [ -z $(rpm -qa|grep "jdk"|grep "1.6.0_45") ];then
         echo "2"
-    elif [ ! -z "$JAVA_HOME" ];then
+    elif [ -z "$JAVA_HOME" ];then
         echo "3"
     else
         echo "0"
@@ -218,7 +218,7 @@ function CHECK_ORACLE_JDK()
 #code "3"='$JAVA_HOME' has not set.
 function CHECK_TOMCAT6()
 {
-    if [[ $(rpm -qa|grep "tomcat6-admin-webapps") = "" ]];then
+    if [ -z $(rpm -qa|grep "tomcat6-admin-webapps") ];then
         echo "1"
         rm -rf /var/log/tomcat6/*
         rm -rf /usr/share/tomcat6/temp/*
@@ -241,7 +241,7 @@ function CHECK_TOMCAT6()
 #code "1"=MySQL-Server has been not installed.
 function CHECK_MYSQL()
 {
-    if [[ $(rpm -qa|grep "mysql-server") != "" ]];then
+    if [ -n $(which mysql) ];then
         echo "0"
         :>/var/log/mysqld.log
         :>/var/lib/mysql/auto.cnf
@@ -266,14 +266,14 @@ function CHECK_MYSQL()
 #code "2"=Geoagent has been not installed.
 function CHECK_GEOAGENT()
 {
-    if [[ $(rpm -qa|grep "activemq-cpp") = "" ]];then
+    if [ -z $(rpm -qa|grep "activemq-cpp") ];then
         echo "1"
     elif [ -d /opt/geoagent ];then
         echo "0"
         rm -rf /opt/geoagent/log
-    elif [[ $(grep "geoagent" /etc/rc.local) = "" ]];then
+    elif [ -z $(grep "geoagent" /etc/rc.local) ];then
         echo '/opt/geoagent/bin/geoagent' >> /etc/rc.local
-    elif [[ $(grep "/opt/geoagent/bin" /etc/ld.so.conf) = "" ]];then
+    elif [ -z $(grep "/opt/geoagent/bin" /etc/ld.so.conf) ];then
         echo "/opt/geoagent/bin" >> /etc/ld.so.conf && lddconfig
     else
         echo "2"
@@ -290,7 +290,7 @@ function CHECK_ZABBIX_AGENT()
     if [ -d /opt/geoagent ];then
         rm -rf /opt/geoagent/log
     fi
-    if [[ $(grep "geoagent" /etc/rc.local) = "" ]];then
+    if [ -z $(grep "geoagent" /etc/rc.local) ];then
         echo '/opt/geoagent/bin/geoagent' >> /etc/rc.local
     fi
 #function end

@@ -24,6 +24,9 @@
     // 控制行高。使用 0 通过字号计算行高。
     "editor.lineHeight": 0,
 
+    // 配置语言的文件关联(如: "*.extension": "html")。这些关联的优先级高于已安装语言的默认关联。
+    "files.associations": {"*.fun":"shellscript"},
+
 // GIT
 
     // 是否启用了 GIT
