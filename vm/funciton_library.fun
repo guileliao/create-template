@@ -286,43 +286,39 @@ function CHECK_GEOAGENT()
 #------------------
 #check zabbix-agent
 #code "0"=zabbix_agent is OK.
-#code "1"=Option [Server] error on '/etc/zabbix/zabbix_agentd.conf'.
-#code "2"=Option [ListenPort] error on '/etc/zabbix/zabbix_agentd.conf'.
-#code "3"=Option [ListenIP] error on '/etc/zabbix/zabbix_agentd.conf'.
-#code "4"=Option [ServerActive] error on '/etc/zabbix/zabbix_agentd.conf'.
-#code "5"=Option [Hostname] error on '/etc/zabbix/zabbix_agentd.conf'.
-#code "100"=zabbix_agent has been not installed.
+#code "127"=zabbix_agent has been not installed.
+#other code need decimal convert to binary;0=right,1=error.
+
 function CHECK_ZABBIX_AGENT()
 {
-    local _ARRAY=(
-    'Server=monsrv.gfstack.geo'
-    'ListenPort=10050'
-    'ListenIP=0.0.0.0'
-    'ServerActive=monsrv.gfstack.geo'
-    'Hostname=Zabbix server'
+    local _ARRAY_OPTION=(
+        'Server=monsrv.gfstack.geo'
+        'ListenPort=10050'
+        'ListenIP=0.0.0.0'
+        'ServerActive=monsrv.gfstack.geo'
+        'Hostname=Zabbix server'
     )
-    local _NUM=0
-    for ((i=0;i<${#_ARRAY[@]};i++));
+    local _ARRAY_COUNTER=(0 0 0 0 0)
+    for ((i=0;i<${#_ARRAY_OPTION[@]};i++));
         do
-            if [ -n "$(grep "${_ARRAY[i]}" /etc/zabbix/zabbix_agentd.conf)" ];then
-                local _NUM=$((${_NUM}+1))
-#                echo "option [$(echo "${_ARRAY[$((${_NUM}-1))]}"|awk -F '=' '{print $1}')] set the correct"
+            if [ -n "$(grep "${_ARRAY_OPTION[${i}]}" /etc/zabbix/zabbix_agentd.conf)" ];then
+                local _ARRAY_COUNTER[${i}]=0
             else
-#                echo "option [$(echo "${_ARRAY[${_NUM}]}"|awk -F '=' '{print $1}')] set the error"
-                break
+                local _ARRAY_COUNTER[${i}]=1
             fi
         done
     if [ -z "$(which zabbix_agent)" ];then
-        echo "100"
-    elif [ ${_NUM} != "5" ];then
-        echo "$((${_NUM}+1))"
+        echo "127"
+    elif [ $(echo $((2#$(echo ${_ARRAY_COUNTER[@]}|sed s/" "//g)))) != "0" ];then
+        echo $((2#$(echo ${_ARRAY_COUNTER[@]}|sed s/" "//g)))
     else
         echo "0"
     fi
-    unset local _ARRAY
-    unset local _NUM
+    unset local _ARRAY_OPTION
+    unset local _ARRAY_COUNTER
 #function end
 }
+
 
 
 #========
