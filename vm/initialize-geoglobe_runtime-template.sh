@@ -306,7 +306,7 @@ function INIT_CENTOS6()
     if [[ $(CHECK_ZABBIX_AGENT) = "127" ]];then
         echo -e "\e[31m Zabbix_agent has been not installed,run me again.\e[0m"
         exit
-    elif [ "$(CHECK_ZABBIX_AGENT) != "127"" -a "$(CHECK_ZABBIX_AGENT) != "0"" ];then
+    elif [ $(CHECK_ZABBIX_AGENT) != "127" -a $(CHECK_ZABBIX_AGENT) != "0" ];then
         echo -e "\e[31m Please check 'zabbix_agent.conf',run me again.\e[0m"
         exit
     fi
