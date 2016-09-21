@@ -219,12 +219,13 @@ function CHECK_ORACLE_JDK()
 #code "3"='$JAVA_HOME' has not set.
 function CHECK_TOMCAT6()
 {
-    if [ -z "$(rpm -qa|grep "tomcat6-admin-webapps")" ];then
-        echo "1"
+    if [ -z "$(rpm -ql tomcat6-admin-webapps)" ];then
+        echo "0" && chkconfig --level 345 tomcat6 on &>/dev/null
         rm /var/log/tomcat6/* -rf
         rm /usr/share/tomcat6/temp/* -rf
         rm /usr/share/tomcat6/work/* -rf
-        chkconfig --level 345 tomcat6 on
+    else
+        echo "1"
     fi
 #function end
 }
@@ -312,7 +313,7 @@ function CHECK_ZABBIX_AGENT()
     elif [ $(echo $((2#$(echo ${_ARRAY_COUNTER[@]}|sed s/" "//g)))) != "0" ];then
         echo $((2#$(echo ${_ARRAY_COUNTER[@]}|sed s/" "//g)))
     else
-        echo "0"
+        echo "0" && chkconfig --level 345 zabbix-agent on
     fi
     unset local _ARRAY_OPTION
     unset local _ARRAY_COUNTER
@@ -320,8 +321,22 @@ function CHECK_ZABBIX_AGENT()
 }
 
 
-
 #========
 #geoglobe
 #========
 #
+#----------------------
+#check_geoglobe_runtime
+#----------------------
+#check geoglobe runtime install and setup
+#code "0"=geoglobe runtime is OK.
+#code "1"=geoglobe runtime has been not installed.
+function CHECK_GEOGLOBE_RUNTIME()
+{
+    if [ -n "$(rpm -ql geostack-operationproxy)" ];then
+        echo "0"
+    else
+        echo "1"
+    fi
+#function end
+}
