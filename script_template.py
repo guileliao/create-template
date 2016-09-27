@@ -20,8 +20,10 @@
 # Usage variable: ${VARIABLE_NAME}
 # The function name: FUNCITON_NAME()
 #
+'''
 VAR = var = "string_01";
 print VAR+var
+'''
 #===============
 #atomic_function
 #===============
