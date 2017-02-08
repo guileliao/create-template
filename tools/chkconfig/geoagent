@@ -1,0 +1,33 @@
+#!/bin/bash
+
+# chkconfig: 345 10 91
+# description: geoagent service
+
+#exec /opt/geoagent/bin/geoagent && ps aux|grep "/opt/geoagent/bin/geoagent"|grep -v "grep"|awk '{print $2}' > /var/run/geoagent.pid
+
+case $1 in
+	start)
+		if [[ $(ps aux|grep "/opt/geoagent/bin/geoagent"|grep -v "grep") != "" ]];then
+			echo -e "\033[32mGeoAgent\033[0m has been running..."
+		else			
+			/opt/geoagent/bin/geoagent && ps aux|grep "/opt/geoagent/bin/geoagent"|grep -v "grep"|awk '{print $2}' > /var/run/geoagent.pid
+		fi
+		;;
+	stop)
+		kill -9 $(cat /var/run/geoagent.pid)
+		;;
+	restart)
+		kill -9 $(cat /var/run/geoagent.pid) && /opt/geoagent/bin/geoagent && ps aux|grep "/opt/geoagent/bin/geoagent"|grep -v "grep"|awk '{print $2}' > /var/run/geoagent.pid
+		;;
+	status)
+		if [[ $(ps aux|grep "/opt/geoagent/bin/geoagent"|grep -v "grep") != "" ]];then
+			echo -e "\033[32mGeoAgent\033[0m (pid $(ps aux|grep "/opt/geoagent/bin/geoagent"|grep -v "grep"|awk '{print $2}')) is running..."
+		else
+			echo -e "\033[32mGeoAgent\033[0m is stop"
+		fi
+		;;
+	*)
+		echo -e $"Useage: $0 {\033[32mstart\033[0m|\033[32mstop\033[0m|\033[32mrestart\033[0m}"
+		exit 2
+		;;
+esac
