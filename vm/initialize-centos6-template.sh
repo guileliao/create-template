@@ -58,6 +58,9 @@ rm /opt/geoagent/log -rf &>/dev/null
 #CREATE VERSION INFO
 #===================
 echo "TEMPLATE_BUILD_TIME=$(date +%Y%m%d%H%M)">>/BUILDING
+echo "ZABBIX-AGENT_VERSION=$(rpm -qa|grep "zabbix-agent"|awk -F '-' '{print $3}')">>/BUILDING
+echo "ACTIVEMQ-CPP_VERSION=$(rpm -qa|grep "activemq-cpp"|awk -F '-' '{print $3}')">>/BUILDING
+echo "JDK_VERSION=$(rpm -qa|grep "^jdk"|awk -F '-' '{print $2}')">>/BUILDING
 echo "OPERATIONPROXY_VERSION=$(rpm -qa|grep "geostack-operationproxy")">>/BUILDING
 echo "GEOAGENT_VERSION=$(cat /opt/geoagent/Version|grep "^VERSION"|awk -F "=" '{print $2}')">>/BUILDING
 echo "GEOGLOBE_VERSION=$(rpm -qa|grep "geoglobe_server-jdk_expansion")">>/BUILDING
