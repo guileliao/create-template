@@ -1,6 +1,7 @@
 mkdir -p /srv/tomcat6
 mkdir -p /usr/share/java/tomcat6
-cp -a ./* /srv/tomcat6/
+mkdir -p /var/lib/tomcat6
+#cp -a ./* /srv/tomcat6/
 ln -s /srv/tomcat6/conf /etc/tomcat6
 ln -s /srv/tomcat6/logs /var/log/tomcat6
 ln -s /srv/tomcat6/bin/catalina.sh /usr/sbin/tomcat6
@@ -8,6 +9,8 @@ ln -s /srv/tomcat6/lib /usr/share/java/tomcat6/lib
 ln -s /srv/tomcat6/work /usr/share/java/tomcat6/work
 ln -s /srv/tomcat6/temp /usr/share/java/tomcat6/temp
 ln -s /srv/tomcat6/bin /usr/share/java/tomcat6/bin
+ln -s /srv/tomcat6/webapps/ /var/lib/tomcat6/webapps
+
 cat>/etc/init.d/tomcat6<<EOF
 #!/bin/sh
 
