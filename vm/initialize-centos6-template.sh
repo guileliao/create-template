@@ -5,7 +5,7 @@
 #===============
 #REMOVE SOFTWARE
 #===============
-yum remove -y dracut* *firmware* selinux* system-config* iptables-ipv6 efibootmgr iwl* ibus desktop-file-utils sound-theme-freedesktop fontconfig cups* wqy* *gnome* *icon* postfix rsyslog
+yum remove -y dracut* *firmware* selinux* system-config* iptables-ipv6 efibootmgr iwl* ibus desktop-file-utils sound-theme-freedesktop fontconfig cups* wqy* *gnome* *icon*
 
 #===========
 #CLEAN UP OS
@@ -43,24 +43,23 @@ chkconfig udev-post off
 #================
 #CLEAN UP TOMCAT6
 #================
-#rm /var/log/tomcat6/* -rf &>/dev/null
-kill -9 $(ps aux|grep "tomcat"|grep -v "grep"|awk '{print $2}')
-rm /srv/apache-tomcat-6.0.48/logs/* -rf &>/dev/null
-rm /srv/apache-tomcat-6.0.48/temp/* -rf &>/dev/null
-rm /srv/apache-tomcat-6.0.48/work/* -rf &>/dev/null
+/usr/sbin/tomcat6 stop 0
+rm /var/log/tomcat6/* -rf &>/dev/null
+rm /usr/share/java/tomcat6/temp/* -rf &>/dev/null
+rm /usr/share/java/tomcat6/work/* -rf &>/dev/null
 
 #=================
 #CLEAN UP GEOAGENT
 #=================
+kill -9 $(ps aux|grep "/opt/geoagent/bin/geoagent"|grep -v "grep"|awk '{print $2}')
 rm /opt/geoagent/log -rf &>/dev/null
 
 #===================
 #CREATE VERSION INFO
 #===================
 echo "TEMPLATE_BUILD_TIME=$(date +%Y%m%d%H%M)">>/BUILDING
-echo "ZABBIX-AGENT_VERSION=$(rpm -qa|grep "zabbix-agent"|awk -F '-' '{print $3}')">>/BUILDING
-echo "ACTIVEMQ-CPP_VERSION=$(rpm -qa|grep "activemq-cpp"|awk -F '-' '{print $3}')">>/BUILDING
-echo "JDK_VERSION=$(rpm -qa|grep "^jdk"|awk -F '-' '{print $2}')">>/BUILDING
+echo "ORACLE_JDK_VERSION=$(rpm -qa|grep "^jdk"|awk -F '-' '{print $2}')">>/BUILDING
+echo "APACHE_TOMCAT_VERSION=$(tomcat6 version|grep "Server version:"|awk -F ': ' '{print $2}'|awk -F '/' '{print $2}')">>/BUILDING
 echo "OPERATIONPROXY_VERSION=$(rpm -qa|grep "geostack-operationproxy")">>/BUILDING
 echo "GEOAGENT_VERSION=$(cat /opt/geoagent/Version|grep "^VERSION"|awk -F "=" '{print $2}')">>/BUILDING
 echo "GEOGLOBE_VERSION=$(rpm -qa|grep "geoglobe_server-jdk_expansion")">>/BUILDING
