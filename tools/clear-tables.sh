@@ -3,6 +3,15 @@
 set -e
 set -u
 
+case $1 in
+	-v)
+		printf "Version=1.0\nBuildtime=201703231623\n"
+		;;
+	-info)
+		printf "The script usage clean up tables \"monitor_log\" on [\e[32mMySQL\e[0m]\n"
+		;;
+esac
+
 _targetDBName_="operationcenter"
 _targetTableName_="monitor_log"
 _dbUser_="root"
