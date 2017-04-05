@@ -1,0 +1,35 @@
+#!/bin/bash
+
+ARGS=$(getopt -o hVab:c: --long help,version,along,blong:,clong: -n $(printf "\e[1m$0\e[0m\n") -- "$@")
+if [ $? != 0 ]; then
+    printf "\e[31mArgument error...\e[0m\n"
+    exit 1
+fi
+
+eval set -- "${ARGS}"
+
+while true
+do
+    case "$1" in
+        -a|--along)
+            echo "Option a";
+            shift
+            ;;
+        -b|--blong)
+            echo "Option b, argument $2";
+            shift 2
+            ;;
+        -c|--clong)
+                echo "Option c, argument $2";
+                shift 2
+                ;;
+        --)
+            shift
+            break
+            ;;
+        *)
+            echo "Internal error!"
+            exit 1
+            ;;
+    esac
+done
