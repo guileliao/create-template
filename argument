@@ -1,35 +1,70 @@
 #!/bin/bash
 
-ARGS=$(getopt -o hVab:c: --long help,version,along,blong:,clong: -n $(printf "\e[1m$0\e[0m\n") -- "$@")
+_ArguMent_=$(getopt -o hVi --long help,version,init,blong:,clong:,dlong:,elong:,flong:,glong: -n $(printf "\e[1m$0\e[0m\n") -- "$@")
 if [ $? != 0 ]; then
-    printf "\e[31mArgument error...\e[0m\n"
+    echo -e "Try '\e[1m$0 --help\e[0m' or '\e[1m$0 -h\e[0m' for more information."
     exit 1
 fi
 
-eval set -- "${ARGS}"
+eval set -- "${_ArguMent_}"
 
 while true
 do
-    case "$1" in
-        -a|--along)
-            echo "Option a";
-            shift
-            ;;
-        -b|--blong)
-            echo "Option b, argument $2";
-            shift 2
-            ;;
-        -c|--clong)
-                echo "Option c, argument $2";
-                shift 2
-                ;;
-        --)
-            shift
-            break
-            ;;
-        *)
-            echo "Internal error!"
-            exit 1
-            ;;
-    esac
+        case "$1" in
+                -h|--help)
+                        echo -e "Options: \e[1mcommand [--argument1] [value] [--argument2] [value] ...\e[0m"
+                        echo -e "  --addnode\t\tadd a node and exit"
+                        echo -e "  --delnode\t\tdelete a node and exit"
+                        echo -e "  --addservice\t\tadd a service and exit"
+                        echo -e "  --delservice\t\tdelete service and exit"
+                        echo -e "\nOptions: \e[1mcommand [-arg|--argument]\e[0m"
+                        echo -e "  -i,--init\t\tinitialize HAproxy setup file and exit"
+                        echo -e "  -h,--help\t\tdisplay help information and exit"
+                        echo -e "  -V,--version\t\toutput version information and exit"
+                        shift
+                        exit 1
+                        ;;
+                -V|--version)
+                        echo -e "GeoStack \e[1m$0\e[0m version 1.0\nbuildtime 2017"
+                        shift
+                        exit
+                        ;;
+                -i|--init)
+                        echo -e "Option i"
+                        shift
+                        exit
+                        ;;
+                --blong)
+                        echo "Option b, argument $2";
+                        shift 2
+                        ;;
+                --clong)
+                        echo "Option c, argument $2";
+                        shift 2
+                        ;;
+                --dlong)
+                        echo "Option d, argument $2";
+                        shift 2
+                        ;;
+                --elong)
+                        echo "Option e, argument $2";
+                        shift 2
+                        ;;
+                --flong)
+                        echo "Option f, argument $2";
+                        shift 2
+                        ;;
+                --glong)
+                        echo "Option g, argument $2";
+                        shift 2
+                        ;;
+                --)
+                        shift
+                        break
+                        ;;
+                *)
+                        echo -e "Try '$0 --help' or '$0 -h' for more information."
+                        exit 1
+                        ;;
+        esac
 done
