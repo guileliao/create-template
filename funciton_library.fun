@@ -18,6 +18,27 @@
 # The function name: FUNCITON_NAME()
 #
 #
+fDisplayMessage(){
+        case $1 in
+                Error)
+                        shift
+                        printf "\033[31;1m%s\033[0m\n" "$@"
+                        ;;
+                Right)
+                        shift
+                        printf "\033[32;1m%s\033[0m\n" "$@"
+                        ;;
+                Info)
+                        shift
+                        printf "\033[33;1m%s\033[0m\n" "$@"
+                        ;;
+                Help|*)
+                        shift
+                        printf "     \033[1m%-15s\033[0m%s\n" "$@"
+                        ;;
+        esac
+}
+
 #================
 #operating_system
 #================
